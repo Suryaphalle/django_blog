@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+
+    {% block content %}
+    {% if messages %}
+        {% for messages in messages %}
+        <div class="alert alert-danger " role="alert">    
+            <strong>{{ messages }}</strong>  {{ post.title }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container-fluied">
+    <div class="row">
+    <div class  ="col-md-8">
+    <h1> Blog Posts</h1>  
+    {% for post in posts[:5] %}
+        <div class="card card-outline-primary" style="height: 130pt;" >
+          <div class="card-header" style="height: 55pt;" >
+                <h5 class="card-title"><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title|upper }}</a></h5> 
+                <p><b>Pub On :</b> {{post.published_date }} <b>By :</b> {{ post.author }} <b>Comments :</b> {{ post.comments.count }} <b>Views :</b> {{ post.views }} </p> 
+          </div>
+          <div class="card-block" style="height: 75pt;">
+              <p class="card-text" >{{ post.text|truncatewords:10}}<a href="{% url 'post_detail' pk=post.pk %}" >Read more</a></p>
+                <a class="card-link " href="{% url 'post_edit' pk=post.pk %}">Edit
+                <a href="{% url 'del_blog' pk=post.pk %}" class="card-link">Delete</a>
+              <a href="" class="card-link"><span class="glyphicon glyphicon-thumbs-up"></span></a></a>
+          </div>
+        </div>
+    {% empty %}
+      <strong>No posts found!</strong>
+    {% endfor %}
+
+    {% include 'includes/pagination.html' %}
+    </div>
+    <div class="col-md-4">
+    <div class="card card-outline-primary" style="height: 150pt;" >
+      <div class="card-header" style="height: 35pt;" >Top Commented</div>    
+      <div class="card-block" style="height: 80pt;">
+           <ul>
+              {% for post in most_commented %}
+                <li><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></li>
+              {% endfor %}
+           </ul>
+      </div>
+    </div>
+     <div class="card card-outline-primary" style="height: 150pt;" >
+      <div class="card-header" style="height: 35pt;" >Most Viewed</div>
+        <div class="card-block" style="height: 85pt;">
+            <ul>
+              {% for post in most_views_posts %}
+                <li><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></li>
+              {% endfor %}
+           </ul>    
+        </div>
+    </div>
+    <div class="card card-outline-primary" style="height: 150pt;" >
+      <div class="card-header" style="height: 35pt;" >Letest Updated </div>
+        <div class="card-block" style="height: 85pt;">
+            <ul>
+              {% for post in updated_posts %}
+                <li><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></li>
+              {% endfor %}
+           </ul>    
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+  {% endblock %}

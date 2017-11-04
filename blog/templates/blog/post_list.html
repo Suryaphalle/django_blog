@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load tags %}
+
+
+    {% block content %}
+    {% if messages %}
+        {% for messages in messages %}
+        <div class="alert alert-danger " role="alert">    
+            <strong>{{ messages }}</strong>  {{ post.title }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container-fluied">
+    <div class="row">
+    <div class  ="col-md-8">
+    <h1> Blog Posts</h1>  
+    {% for post in posts %}
+        <div class="card card-outline-primary"  >
+          <div class="card-header " >
+                <h5 class="card-title"><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title|title }}</a></h5> 
+                <p><b>Pub On :</b> {{post.published_date|date }} <b>By :</b> {{ post.author|title }} <b>Comments :</b> {{ post.comments.count }} <b>Views :</b> {{ post.views }} </p> 
+          </div>
+          <div class="card-block" >
+              <p class="card-text" >{{ post.text|truncatewords:10}}<a href="{% url 'post_detail' pk=post.pk %}" >Read more</a></p>
+            {% if user.is_authenticated and post.author == request.user %}
+                <a class="card-link " href="{% url 'post_edit' pk=post.pk %}">Edit
+                <a href="{% url 'del_blog' pk=post.pk %}" class="card-link">Delete</a>
+            {% endif %}
+              <a href="" class="card-link"><span class="glyphicon glyphicon-thumbs-up"></span></a></a>
+          </div>
+        </div>
+        
+    {% empty %}
+      <strong>No posts found!</strong>
+    {% endfor %}
+
+    {% include 'includes/pagination.html' %}
+    </div>
+    <div class="col-md-4">
+    <div class="card card-outline-primary"  >
+      <div class="card-header"  ><h4>Top Commented</h4></div>    
+      <div class="card-block" >
+           <ul>
+              {% most_commented_posts %}
+           </ul>
+      </div>
+    </div>
+     <div class="card card-outline-primary">
+      <div class="card-header"  ><h4>Most Viewed</h4></div>
+        <div class="card-block" >
+            <ul>
+              {% most_viewed_posts %}
+           </ul>    
+        </div>
+    </div>
+    <div class="card card-outline-primary" >
+      <div class="card-header" ><h4>Letest Updated</h4> </div>
+        <div class="card-block">
+            <ul>
+              {% latest_added_posts %}
+           </ul>    
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+  {% endblock %}

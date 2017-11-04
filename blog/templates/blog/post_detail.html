@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="post">
+        <h1>{{ post.title |title }}</h1>
+        {% if post.published_date %}
+            <div class="date">
+                Published On : {{ post.published_date }}
+            </div>
+        {% endif %}
+        <p>{{ post.text|linebreaksbr }}</p>
+        <hr>
+
+        {% if user.is_authenticated %}
+            <div class="container-fluid">
+                <form method="POST" class="post-form">
+                    {% csrf_token %}
+                    {% include 'includes/form_snippet.html' %}
+                    <button type="submit" class="save btn btn-primary">Comment</button>
+                </form>
+            </div>
+            {% for comment in post.comments.all %}
+                 {% if user.is_authenticated %}
+                <div class="comment">
+                    <div class="date"> 
+                            <strong>{{ comment.author|title }}</strong> On {{ comment.created_date }}
+                    </div>
+                    <p>{{ comment.text|linebreaks }}</p>
+                    <form method="POST" class="form-inline">{% csrf_token %} 
+                        {% include 'includes/form_snippet.html' %}
+                        <button type="submit" class="save btn btn-default ml-2">Reply</button>
+                    </form>
+                </div>
+                {% endif %}
+            {% empty %}
+                <p>No comments here yet :(</p>
+            {% endfor %}
+        {% else %}
+            <strong>To post comments <a href="{% url 'login' %}" >login </a>
+            or <a href="{% url 'signup' %}" >register</a>. </strong>
+            {% for comment in post.comments.all %}
+                <div class="comment">
+                    <div class="date"> 
+                            <strong>{{ comment.author|title }}</strong> On {{ comment.created_date }}
+                    </div>
+                    <p>{{ comment.text|linebreaks }}</p>
+                    <a href="#" > Reply </a>
+                </div>
+            {% empty %}
+                <p>No comments here yet :(</p>
+            {% endfor %}
+            
+        {% endif %}
+    </div>
+{% endblock %}

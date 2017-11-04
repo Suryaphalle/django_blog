@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container col-sm-4 offset-3">
+        <form method="POST" >
+        <h2> Login </h2>
+            {% csrf_token %}
+            {% include 'includes/form_snippet.html' %}
+        <button type="submit" class="btn btn-success btn-block">Login</button>
+        <a href="{% url 'accounts:password_reset' %}">Forget Password?</a>
+        </form>
+    </div>
+{% endblock %}
