@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import operator
-from django.db.models import Q, Count
+from django.db.models import Q, F, Count
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -211,7 +212,7 @@ class PostDetailView(DetailView):
         form = self.form_class()
         session_key = 'viewed_post_{}'.format(self.object.pk)
         if not request.session.get(session_key,False):
-            self.object.views +=1
+            self.object.views = F('views')+1
             self.object.save()
             request.session[session_key]=True
 
@@ -220,12 +221,26 @@ class PostDetailView(DetailView):
     def post(self,request,*args,**kwargs):
         self.object = self.get_object()
         self.form = self.form_class(request.POST)
+
+        try:
+            parent_id = self.request.POST.get('parent_id')
+        except:
+            parent_id = None
+
         if self.form.is_valid():
             comment = self.form.save(commit=False)
             comment.author = self.request.user
             comment.post = self.object
+
+            if parent_id is not None:
+                parent = get_object_or_404(Comment,pk=parent_id)
+                comment.parent = parent
+                self.form.save()
             self.form.save()
-        return render(request, self.template_name, {'form': self.form, 'post': self.object})
+            return redirect('post_detail',pk=self.object.pk)
+        else:
+            return self.render(request)
+        # return render(request, self.template_name, {'form': self.form, 'post': self.object})
     
 
 class ContactView(FormView):
@@ -240,7 +255,7 @@ class ContactView(FormView):
 
 
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin,CreateView):
     model = Post
     template_name = 'blog/post_edit.html'
     form_class = PostForm
@@ -277,7 +292,7 @@ class PostUpdateView(UpdateView):
         return context
 
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin,DeleteView):
     model = Post
     template_name = 'blog/conferm_del.html'
     success_url = reverse_lazy('post_list')

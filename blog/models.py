@@ -27,11 +27,17 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+    @property
+    def get_comment(self):
+        instance = self
+        qs = Comment.objects.filter(post=instance)
+        return qs
 
 
 class Comment(models.Model):
     post = models.ForeignKey('blog.Post', related_name='comments')
     author = models.ForeignKey('auth.user')
+    parent = models.ForeignKey('self',on_delete=models.CASCADE,blank=True,null=True,related_name='replies')
     text = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
     approved_comment = models.BooleanField(default=False)
@@ -43,6 +49,9 @@ class Comment(models.Model):
     def approve(self):
         self.approved_comment = True
         self.save()
+
+    def has_replies(self):
+        return Comment.objects.filter(parent=self)
 
     def __str__(self):
         return self.text
