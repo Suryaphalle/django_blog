@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
+from .managers import PostManager
 
 class Post(models.Model):
     author = models.ForeignKey('auth.user')
@@ -10,6 +11,8 @@ class Post(models.Model):
     created_date = models.DateTimeField( default =timezone.now)
     published_date = models.DateTimeField( blank=True, null=True)
     updated_date = models.DateTimeField( default =timezone.now)
+
+    objects = PostManager()
 
     class Meta:
         ordering = ['-published_date']
@@ -27,6 +30,7 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
     @property
     def get_comment(self):
         instance = self

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 
 import operator
 from django.db.models import Q, F, Count
@@ -197,6 +197,15 @@ class PostListView(ListView):
         context['most_commented'] = posts_objects.order_by('-num_comments')[:5]
         return context
 
+    def get_queryset(self):
+        queryset = super(PostListView,self).get_queryset()
+        query = self.request.GET.get('q')
+
+        if query is not None:
+            queryset = Post.objects.search(query)
+            return queryset
+
+        return queryset
 class PostDetailView(DetailView):
     model = Post
     form_class = CommentForm
@@ -315,21 +324,18 @@ class SignUpView(FormView):
         return super(SignUpView,self).form_invalid(form)
 
 
-class BlogSearchListView(ListView):
-    model = Post
-    paginate_by = 10
-    template_name = 'blog/post_list.html'
-    context_object_name = 'posts'
-    queryset = Post.objects.all()
+# class BlogSearchListView(ListView):
+#     model = Post
+#     paginate_by = 10
+#     template_name = 'blog/post_list.html'
+#     context_object_name = 'posts'
+#     queryset = Post.objects.all()
 
-    def get_queryset(self):
-        queryset = super(BlogSearchListView,self).get_queryset()
-        query = self.request.GET.get('q')
 
-        if query:
-            query_list = query.split()
-            queryset = queryset.filter(reduce(operator.and_,(Q(title__icontains=q) for q in query_list)) |
-                reduce(operator.and_,(Q(text__icontains=q) for q in query_list))
-            )
-        return queryset
+        # if query:
+        #     query_list = query.split()
+        #     queryset = queryset.filter(reduce(operator.and_,(Q(title__icontains=q) for q in query_list)) |
+        #         reduce(operator.and_,(Q(text__icontains=q) for q in query_list))
+        #     )
+        # return queryset
 

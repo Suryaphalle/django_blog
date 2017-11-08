@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^about/$', views.AboutView.as_view(),name='about_us'),
     url(r'^contact/$', views.ContactView.as_view(),name='contact'),
-    url(r'^signup/$',views.SignUpView.as_view(), name='signup'),
+    url(r'^signup/$',accounts_views.signup, name='signup'),
     url(r'^reset/$',auth_views.PasswordResetView.as_view(template_name='registration/password_reset.html',
         email_template_name='registration/password_reset_email.html',
         subject_template_name='registration/password_reset_subject.txt'
@@ -45,5 +45,10 @@ urlpatterns = [
     url(r'^reset/complete/$',
     auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'),
     name='password_reset_complete'),
+
+    url(r'^account_activation_sent/$', accounts_views.account_activation_sent, name='account_activation_sent'),
+    url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        accounts_views.activate, name='activate'),
+
 
 ]
