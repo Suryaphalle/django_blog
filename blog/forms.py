@@ -1,5 +1,6 @@
 from django import forms
 from .models import Post, Comment
+from django.core.mail import send_mail
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -7,8 +8,7 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ('title','text',)
-
+        fields = ('title','text')
 
 class CommentForm(forms.ModelForm):
     
@@ -32,8 +32,8 @@ class CommentForm(forms.ModelForm):
 
 
 class ContactForm(forms.Form):
-    name = forms.CharField()
-    message = forms.CharField(widget=forms.Textarea)
-
-    def send_mail(self):
-        pass
+    name = forms.CharField(max_length=120, widget=forms.TextInput(attrs={'placeholder':'Enter name',}))
+    subject = forms.CharField(max_length=120, widget=forms.TextInput(attrs={'placeholder':'Enter subject for future reference .',}))
+    email = forms.CharField(max_length=120, widget=forms.EmailInput(attrs={'placeholder':'Enter valid email id. eg. abc@gmail.com',}))
+    message = forms.CharField(widget = forms.Textarea(attrs={'placeholder':'what is in your mind ?',}))
+    

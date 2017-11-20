@@ -19,6 +19,12 @@ from django.contrib.auth import views as auth_views
 from blog import views
 from accounts import views as accounts_views
 from django.views.generic import TemplateView
+from tastypie.api import Api
+from blog.api import AjaxSearchResource
+
+rest_api = Api(api_name='v1')
+rest_api.register(AjaxSearchResource())
+
 
 urlpatterns = [
     url(r'^login/$',auth_views.login,name='login'),
@@ -26,11 +32,16 @@ urlpatterns = [
     # url(r'^signup/$',views.signup, name='signup'),
     url(r'^admin/', admin.site.urls),
     url(r'^blog/',include('blog.urls')),
-    url(r'^accounts/',include('accounts.urls',namespace='accounts')),
+    url(r'^profiles/',include('accounts.urls',namespace='profiles')),
+    url(r'^api/',include(rest_api.urls)),
+    url(r'^accounts/',include('allauth.urls')),
     url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^about/$', views.AboutView.as_view(),name='about_us'),
+    url(r'^pages/', include('django.contrib.flatpages.urls',namespace='pages')),
     url(r'^contact/$', views.ContactView.as_view(),name='contact'),
     url(r'^signup/$',accounts_views.signup, name='signup'),
+    url(r'^ajax/validate_username/$',accounts_views.validate_username, name='validate_username'),
+    url(r'^profile/$',accounts_views.MyProfileView.as_view(),name='my_profile'),
     url(r'^reset/$',auth_views.PasswordResetView.as_view(template_name='registration/password_reset.html',
         email_template_name='registration/password_reset_email.html',
         subject_template_name='registration/password_reset_subject.txt'

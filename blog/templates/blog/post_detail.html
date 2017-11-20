@@ -4,6 +4,7 @@
 
     <div class="post">
         <h1>{{ post.title |title }}</h1>
+        Author: {{ post.author|title }}
         {% if post.published_date %}
             <div class="date">
                 Published On : {{ post.published_date }}
@@ -14,7 +15,7 @@
  
         {% if user.is_authenticated %}
             <div class="container-fluid">
-                <form method="POST" class="post-form">
+                <form method="POST" action="." class="post-form" id="comment_form">
                     {% csrf_token %}
                     {% include 'includes/form_snippet.html' %}
                     <button type="submit" class="save btn btn-primary">Comment</button>
@@ -24,19 +25,27 @@
                     {% if comment.parent == None %}
                     <div class="card card-outline-info comment">
                         <div class="card-header date"> 
-                                <strong class="card-title">{{ comment.author|title }}</strong> On {{ comment.created_date }}
+                                <strong class="card-title">{{ comment.author|title }}</strong> On {{ comment.created_date }} Replies: {{ comment.has_replies.count }}
                         </div>
                         <div class="card-block">
                             <div class="card-text" >
-                                <p >{{ comment.text|linebreaks }}</p>
-                                <ul class="comment-replies">
-                                    {% for replies in comment.has_replies|slice:":2" %}
-                                        <li>By:{{ replies.author }} :- {{ replies.text }}</li>
-                                    {% empty %}
-                                        <li> No replies</li>
-                                    {% endfor %}
-                                </ul>
-                            <form method="POST" action="." class="form-inline">{% csrf_token %} 
+                                <p >{{ comment.text }}</p>
+                                <button class="btn btn-primary btn-sm button-reply" type="button">
+                                    reply
+                                </button>
+                                <button class="btn btn-primary btn-sm button-view-replies" type="button">
+                                    Replies{{ comment.has_replies.count }}
+                                </button>
+                                <div >
+                                    <ul class="comment-replies" >
+                                        {% for replies in comment.has_replies %}
+                                            <li>By:{{ replies.author }} :- {{ replies.text }}</li>
+                                        {% empty %}
+                                            <li> No replies</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            <form method="POST" action="." class="form-inline form-replies" >{% csrf_token %} 
                                 {% include 'includes/form_snippet.html' %}
                                 <input type="hidden" name="parent_id" value='{{ comment.id }}'>
                                 <button type="submit" class="save btn btn-success ml-2">Reply</button>
@@ -50,8 +59,8 @@
             {% endfor %}
 
         {% else %}
-            <strong>To post comments <a href="{% url 'login' %}" >login </a>
-            or <a href="{% url 'signup' %}" >register</a>. </strong>
+            <strong>To post comments <a href="{% url 'account_login' %}" >Login </a>
+            or <a href="{% url 'account_signup' %}" >SignUp</a>. </strong>
             {% for comment in post.comments.all %}
                 <div class="comment">
                     <div class="date"> 

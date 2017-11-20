@@ -2,9 +2,9 @@
 
 {% block content %}
     <h2> Contact Us </h2>
-    <form method="POST" class="post-form" >
+    <form method="POST" class="post-form contact-form" data-url = "{% url 'contact' %}" >
         {% csrf_token %}
         {% include 'includes/form_snippet.html' %}
-    <button type="submit" class="save btn btn-info">Save</button>
+    <button type="submit" class="save btn btn-info">Send Email</button>
     </form>
 {% endblock %}

@@ -1,24 +1,31 @@
     # -*- coding: utf-8 -*-
 
 import operator
-from django.db.models import Q, F, Count
+from django.db.models import Q, F, Count, IntegerField
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
+from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView
 from django.views.generic.edit import FormView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse
 from .models import Post, Comment
 from .forms import PostForm, CommentForm, ContactForm
 from accounts.forms import SignUpForm
+import json
 
+from .mixins import AjaxFormMixin
 # Create your views here.
 
 
@@ -60,16 +67,17 @@ def post_detail(request,pk):
 
 @login_required
 def post_new(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.published_date = timezone.now()
-            post.save()
-            return redirect('home')
-    else:
-        form = PostForm()
+    if request.is_ajax:    
+        if request.method == "POST":
+            form = PostForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.author = request.user
+                post.published_date = timezone.now()
+                post.save()
+                return JsonResponse('posted successfully ',safe=False)
+        else:
+            form = PostForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
 @login_required
@@ -174,7 +182,7 @@ class HomeView(ListView):
     model = Post
     template_name = 'home.html'
     context_object_name = 'posts'
-    paginate_by = 3
+    paginate_by = 5
 
     def get_context_data(self,**kwargs):
         queryset = Post.objects.all()
@@ -206,6 +214,7 @@ class PostListView(ListView):
             return queryset
 
         return queryset
+
 class PostDetailView(DetailView):
     model = Post
     form_class = CommentForm
@@ -230,37 +239,64 @@ class PostDetailView(DetailView):
     def post(self,request,*args,**kwargs):
         self.object = self.get_object()
         self.form = self.form_class(request.POST)
+        if request.is_ajax():
+                try:
+                    parent_id = self.request.POST.get('parent_id')
+                except:
+                    parent_id = None
 
-        try:
-            parent_id = self.request.POST.get('parent_id')
-        except:
-            parent_id = None
+                if self.form.is_valid():
+                    comment = self.form.save(commit=False)
+                    comment.author = self.request.user
+                    comment.post = self.object
 
-        if self.form.is_valid():
-            comment = self.form.save(commit=False)
-            comment.author = self.request.user
-            comment.post = self.object
-
-            if parent_id is not None:
-                parent = get_object_or_404(Comment,pk=parent_id)
-                comment.parent = parent
-                self.form.save()
-            self.form.save()
-            return redirect('post_detail',pk=self.object.pk)
-        else:
-            return self.render(request)
-        # return render(request, self.template_name, {'form': self.form, 'post': self.object})
+                    if parent_id is not None:
+                        parent = get_object_or_404(Comment,pk=parent_id)
+                        comment.parent = parent
+                        self.form.save()
+                    self.form.save()
+                    data = {
+                        'message' : 'Successfully submitted comment data.'
+                    }
+                    return JsonResponse(data)
+                else:
+                    data = {
+                        'message': 'errors.'
+                    }
+                    return JsonResponse(data)
+            #    return redirect('post_detail',pk=self.object.pk)
+            # else:
+            #     return self.render(request)
+            # # return render(request, self.template_name, {'form': self.form, 'post': self.object})
     
 
-class ContactView(FormView):
+class ContactView(FormView,AjaxFormMixin):
     template_name = 'contact.html'
     form_class = ContactForm
     success_url = '/thanks/'
 
     def form_valid(self,form):
-        form.send_email()
-        return super(ContactView,self).form_valid(form)
+        response = super(ContactView,self).form_valid(form)
+        if self.request.is_ajax():
 
+                name = form.cleaned_data['name']
+                subject = form.cleaned_data['subject']
+                email = form.cleaned_data['email']
+                message = form.cleaned_data['message']
+                send_email(subject,message,email,['admin@example.com'])
+                data = {
+                   'message': 'Successfully submitted data.'
+                }
+                return JsonResponse(data)
+        else:
+                return response
+
+    def form_invalid(self,form):
+        response = super(AjaxFormMixin,self).form_invalid(form)
+        if self.request.is_ajax():
+            return JsonResponse(form.errors,status=400)
+        else:
+            return response
 
 
 
@@ -269,11 +305,34 @@ class PostCreateView(LoginRequiredMixin,CreateView):
     template_name = 'blog/post_edit.html'
     form_class = PostForm
     success_url = reverse_lazy('post_list')
-    
+
     def form_valid(self,form):
         form.instance.author = self.request.user
         form.instance.published_date = timezone.now()
         return super(PostCreateView, self).form_valid(form)
+    # def form_valid(self,form):
+    #     form.instance.author = self.request.user
+        
+    #     response = super(PostCreateView, self).form_valid(form)
+    #     if self.request.is_ajax():
+    #         instance = form.save()
+    #         instance.save()
+    #         data = {
+    #            'message': 'Successfully submitted post.'
+    #         }
+    #         return JsonResponse(data)
+    #     else:
+    #         return response
+
+    # def form_invalid(self,form):
+    #     response = super(PostCreateView,self).form_invalid(form)
+    #     if self.request.is_ajax():
+    #         data = {
+    #            'message': 'forms errors.'
+    #         }
+    #         return JsonResponse(data,form.errors,status=400)
+    #     else:
+    #         return response
 
     def get_context_data(self,**kwargs):
         context = super(PostCreateView,self).get_context_data(**kwargs)
@@ -283,7 +342,7 @@ class PostCreateView(LoginRequiredMixin,CreateView):
 
 
 
-class PostUpdateView(UpdateView):
+class PostUpdateView(UpdateView,AjaxFormMixin):
     model = Post
     template_name = 'blog/post_edit.html'
     form_class = PostForm
@@ -323,7 +382,6 @@ class SignUpView(FormView):
     def form_invalid(self,form):
         return super(SignUpView,self).form_invalid(form)
 
-
 # class BlogSearchListView(ListView):
 #     model = Post
 #     paginate_by = 10
@@ -338,4 +396,32 @@ class SignUpView(FormView):
         #         reduce(operator.and_,(Q(text__icontains=q) for q in query_list))
         #     )
         # return queryset
+def search_post_title(request):
+    if request.is_ajax:
+        title = request.GET.get('start','')
+        post = Post.objects.all().filter(Q(title__icontains=title))
+        results = []
+        for post_title in post:
+            post_title_json = {}
+            post_title_json['label']= post_title.title
+            post_title_json['value']= post_title.title
+            results.append(post_title_json)
+        data_json = json.dumps(results)
+    else:
+        data_json = 'fail'
+    return HttpResponse(data_json,content_type='application/json')
+
+# class PostLikeToggle(RedirectView):
+#     def get_redirect_url(self,*args,**kwrgs):
+#         pk = self.kwargs.get("pk")
+#         print(pk)
+#         obj = get_object_or_404(Post, pk=pk)
+#         url_ = obj.get_absolute_url()
+#         user = self.request.user
+#         if user.is_authenticated():
+#             if user in obj.likes.all():
+#                 obj.likes.remove(user)
+#             else:
+#                 obj.likes.add(user)
+#         return url_
 

@@ -1,12 +1,17 @@
 {% load static %}
 {% load tags %}
+{% load flatpages %}
+{% get_flatpages as flatpages %}
 <!DOCTYPE html>
 <html>
     <head>
         <title>Django blog</title>
-        {% block stylesheets %}
+        
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+
+        {% block stylesheets %}
         {% endblock %}
     </head>
     <body>
@@ -26,14 +31,16 @@
         <a class="nav-link" href="{% url 'post_new' %}">New Blog</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'about_us' %}">About Us</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
       </li>
+      <li class="nav-item">
+        {% for page in flatpages %}
+        <a class="nav-link" href="{{ page.url }}">{{ page.title }}</a>
+        {% endfor %}
+      </li>
       
-      <form class="form-inline ml-auto" action="{% url 'post_list' %}" >
-      <input class="form-control mr-sm-2" type="text" placeholder="Search" name="q">
+      <form class="form-inline ml-auto" action="{% url 'post_list' %}" data-url="{% url 'post_title' %}" id="form_search_post" >
+      <input class="form-control mr-sm-2" type="text" placeholder="Search" name="q" id="search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit" style="padding-right: 20px;">Search</button>
       </form>
       
@@ -46,7 +53,7 @@
             {{user.username|title }}
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item" href="">MyAccount</a>
+            <a class="dropdown-item" href="{% url 'my_profile' %}">MyAccount</a>
             <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
             <!-- <a class="dropdown-item" href="#">Another action</a>
@@ -58,8 +65,8 @@
       
       <form class="form-inline ml-auto" >
       
-        <a class="btn btn-outline-info ml-5" href="{% url 'login' %}" role="button">Login</a>
-        <a class="btn btn-outline-success ml-2" href="{% url 'signup' %}" role="button">Sign up</a>
+        <a class="btn btn-outline-info ml-5" href="{% url 'account_login' %}" role="button">Login</a>
+        <a class="btn btn-outline-success ml-2" href="{% url 'account_signup' %}" role="button">Sign up</a>
       </form>
       
       {% endif %}
@@ -72,10 +79,17 @@
     {% block content %}
     {% endblock %}
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!--     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+ -->   
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+    <!-- <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script> -->
+    <script src="{% static 'js/jquery.waypoints.js' %}"></script>
+    <script src="{% static 'js/infinite.min.js' %}"></script>
+    {% block javascript%}
+    {% endblock %}
     </body>
 </html>

@@ -2,14 +2,17 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
 from .managers import PostManager
+from django.conf import settings
+import datetime
 
 class Post(models.Model):
     author = models.ForeignKey('auth.user')
     title = models.CharField(max_length = 200)
     text = models.TextField()
     views = models.PositiveIntegerField(default=0)
-    created_date = models.DateTimeField( default =timezone.now)
-    published_date = models.DateTimeField( blank=True, null=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='post_likes')
+    created_date = models.DateTimeField(default =timezone.now)
+    published_date = models.DateTimeField(blank=True, null=True)
     updated_date = models.DateTimeField( default =timezone.now)
 
     objects = PostManager()
@@ -17,9 +20,8 @@ class Post(models.Model):
     class Meta:
         ordering = ['-published_date']
 
-
     def publish():
-        self.published_date = timezone.now()
+        self.published_date = datetime.datetime.now()
         self.save()
 
     def approved_comments(self):
@@ -36,6 +38,13 @@ class Post(models.Model):
         instance = self
         qs = Comment.objects.filter(post=instance)
         return qs
+
+    def get_like_url(self):
+        return reverse("posts:like-toggle", kwargs={"pk": self.pk})
+
+    def get_api_like_url(self):
+        return reverse("posts:like-api-toggle", kwargs={"pk": self.pk})
+
 
 
 class Comment(models.Model):

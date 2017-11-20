@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="container col-sm-8 offset-1">
+      <h2>Sign up</h2>
+      <form method="post" id="signupform" data-validate-username-url="{% url 'validate_username' %}" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        {% include 'includes/form_snippet.html' %}
+        <button type="submit" class="btn btn-success">Sign up</button>
+       
+        <p>Already Resgistered? <a href="{{ login_url }}" > login </a> </p>
+      </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    $("#id_username").change(function(){
+      var form = $(this).closest("form");
+      $.ajax({
+        url : form.attr("data-validate-username-url"),
+        data : form.serialize(),
+        dataType : 'json',
+        success : function(data){
+          if (data.is_taken){
+            alert(data.errorMessage);
+          }
+        }
+      });
+      console.log($(this).val());
+    });
+  </script>
+{% endblock %}

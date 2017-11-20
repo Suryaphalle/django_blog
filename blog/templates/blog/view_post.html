@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <meta charset="UTF-8">
+    <title>Ajax search</title>
+
+<body>
+    <div id="search_content">
+        <form action="">
+            {% csrf_token %}
+            <input id="query" name="query" type="text" placeholder="Search..." />
+        </form>
+    </div>
+    {% if post %}
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content }}</p>
+    {% endif %}
+</body>
+
+{% endblock %}
+{% block javascript %}
+        <script type="text/javascript" src="{% static 'js/livesearch.js' %}"></script>
+{% endblock %}

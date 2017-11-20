@@ -2,8 +2,10 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
+from . import views
 
 urlpatterns = [
+
     url(r'^reset/$',auth_views.PasswordResetView.as_view(template_name='registration/password_reset.html',
         email_template_name='registration/password_reset_email.html',
         subject_template_name='registration/password_reset_subject.txt'

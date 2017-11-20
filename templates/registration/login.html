@@ -1,14 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load socialaccount %}
+{% load bootstrap3 %}
 
 {% block content %}
+
     <div class="container col-sm-4 offset-3">
+        <h2 id="login_title"> Login </h2>
         <form method="POST" >
-        <h2> Login </h2>
+        
             {% csrf_token %}
             {% include 'includes/form_snippet.html' %}
         <button type="submit" class="btn btn-success btn-block">Login</button>
-        <a href="{% url 'accounts:password_reset' %}">Forget Password?</a>
+        <a href="{% url 'profiles:password_reset' %}" >Forget Password?</a>
         </form>
+        <span class="text-center" ><h6>OR</h6></span>
+        {% buttons %}
+        <a class="btn btn-danger" href="{% provider_login_url 'google' %}" role='button'>
+              Google
+           </a>
+            <a class="btn default" href="{% provider_login_url 'github' %}" role='button'>Github</a>
+        {% endbuttons %}
+
     </div>
 {% endblock %}

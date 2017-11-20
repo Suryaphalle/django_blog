@@ -9,6 +9,9 @@ from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
 from blog.utils import account_activation_token
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
+from django.views.generic import View
+from blog.models import Post
+from django.http import JsonResponse
 
 def signup(request):
     if request.method == 'POST':
@@ -56,3 +59,22 @@ def activate(request,uidb64,token):
         return redirect('home')
     else:
         return render(request,'registration/account_activation_invalid.html')   
+
+
+class MyProfileView(View):
+    model =User
+    template_name = 'registration/my_profile.html'
+    context_object_name = 'user_posts'
+    paginate_by = 10
+
+    def get(self,request,*args,**kwargs):
+        return render(request,self.template_name,{'user_posts': self.context_object_name})
+
+def validate_username(request):
+    username = request.GET.get('username',None)
+    data = {
+        'is_taken': User.objects.filter(username__iexact=username).exists()
+    }
+    if data['is_taken']:
+        data['errorMessage'] = 'A user with this username already exists.'
+    return JsonResponse(data)

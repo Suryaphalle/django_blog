@@ -10,11 +10,13 @@
         </div>
         {% endfor %}
     {% endif %}
-    <div class="container-fluied">
+    <div class="container-fluied ">
     <div class="row">
-    <div class  ="col-md-8">
+    <div class  ="col-md-8 ">
     <h1> Blog Posts</h1>  
+    <div class="infinite-container">
     {% for post in posts %}
+      <div class="infinite-item">
         <div class="card card-outline-primary"  >
           <div class="card-header " >
                 <h5 class="card-title"><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title|title }}</a></h5> 
@@ -29,13 +31,20 @@
               <a href="" class="card-link"><span class="glyphicon glyphicon-thumbs-up"></span></a></a>
           </div>
         </div>
-        
+        </div>
     {% empty %}
       <strong>No posts found!</strong>
     {% endfor %}
-
-    {% include 'includes/pagination.html' %}
+   </div>
+    <div class="loading" style="display: none;">
+      Loading...
     </div>
+
+    {% if page_obj.has_next %}
+      <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}">More</a>
+    {% endif %}
+    </div>   
+
     <div class="col-md-4">
     <div class="card card-outline-primary"  >
       <div class="card-header"  ><h4>Top Commented</h4></div>    
@@ -64,4 +73,18 @@
     </div>
     </div>
     </div>
+  {% endblock %}
+
+  {% block javascript%}
+    <script>
+    var infinite = new Waypoint.Infinite({
+      element: $('.infinite-container')[0],
+      onBeforePageLoad: function () {
+        $('.loading').show();
+      },
+      onAfterPageLoad: function ($items) {
+        $('.loading').hide();
+      }
+    });
+    </script>
   {% endblock %}
