@@ -1,13 +1,13 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import PostViewSet, UserViewSet, api_root
+from . import views
 
-# post_list = PostViewSet.as_view({
+# post_list = views.PostViewSet.as_view({
 #         'get':'list',
 #         'post': 'create'
 #     })
 
-# post_detail = PostViewSet.as_view({
+# post_detail = views.PostViewSet.as_view({
 #         'get':'retrive',
 #         'put':'update',
 #         'patch':'partial_update',
@@ -15,18 +15,23 @@ from .views import PostViewSet, UserViewSet, api_root
 
 #     })
 
-# user_list = UserViewSet.as_view({
+# user_list = views.UserViewSet.as_view({
 #         'get':'list'
 #     })
 
-# user_detail = UserViewSet.as_view({
+# user_detail = views.UserViewSet.as_view({
 #         'get': 'retrive'
 #     })
 
-# urlpatterns = format_suffix_patterns([
-#     url(r'^$', api_root),
-#     url(r'^post/$',post_list,name='post-list'),
-#     url(r'^post/(?P<pk>[0-9]+)/$', post_detail , name='post-detail'),
-#     url(r'^users/$', user_list ,name='user-list'),
-#     url(r'^users/(?P<pk>[0-9]+)/$', user_detail , name='user-detail'),    
-# ])
+urlpatterns = format_suffix_patterns([
+
+    url(r'^post/$',views.PostListView.as_view(),name='post-list'),
+    url(r'^post/create/$',views.PostCreateView.as_view(),name='post-create'),
+    url(r'^post/(?P<pk>[0-9]+)/edit/$',views.PostEditView.as_view(),name='post-edit'),
+    url(r'^post/(?P<pk>[0-9]+)/delete/$',views.PostDeleteView.as_view(),name='post-delete'),
+    url(r'^comment/$', views.CommentListView.as_view() ,name='comment-list'),
+    url(r'^comment/create/$',views.CommentCreateView.as_view(),name='comment-create'),
+    url(r'^comment/(?P<pk>[0-9]+)/detail/$', views.CommentDetailView.as_view() ,name='comment-detail'),
+    url(r'^post/(?P<pk>[0-9]+)/$', views.PostDetailView.as_view(), name='post-detail'),
+    
+])
