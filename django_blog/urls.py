@@ -20,11 +20,17 @@ from blog import views
 from accounts import views as accounts_views
 from django.views.generic import TemplateView
 from tastypie.api import Api
-from blog.api import AjaxSearchResource
+from blog.api.views import PostViewSet, UserViewSet, api_root
+from rest_framework.routers import DefaultRouter
 
-rest_api = Api(api_name='v1')
-rest_api.register(AjaxSearchResource())
+# from blog.api import AjaxSearchResource
 
+# rest_api = Api(api_name='v1')
+# rest_api.register(AjaxSearchResource())
+
+router = DefaultRouter()
+router.register(r'post', PostViewSet)
+router.register(r'user', UserViewSet)
 
 urlpatterns = [
     url(r'^login/$',auth_views.login,name='login'),
@@ -33,10 +39,12 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^blog/',include('blog.urls')),
     url(r'^profiles/',include('accounts.urls',namespace='profiles')),
-    url(r'^api/',include(rest_api.urls)),
+    # url(r'^api/',include(rest_api.urls)),
+    # url(r'^api/',include('blog.api.urls')),
     url(r'^accounts/',include('allauth.urls')),
     url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^about/$', views.AboutView.as_view(),name='about_us'),
+    url(r'^posts-api/', include(router.urls)),
     url(r'^pages/', include('django.contrib.flatpages.urls',namespace='pages')),
     url(r'^contact/$', views.ContactView.as_view(),name='contact'),
     url(r'^signup/$',accounts_views.signup, name='signup'),
@@ -62,4 +70,9 @@ urlpatterns = [
         accounts_views.activate, name='activate'),
 
 
+]
+
+urlpatterns += [
+    
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

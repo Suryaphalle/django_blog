@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
     'bootstrap3',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -158,3 +159,4 @@ LOGIN_REDIRECT_URL = '/blog'
 LOGOUT_REDIRECT_URL ='login'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
