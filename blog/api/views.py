@@ -9,12 +9,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, detail_route
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
-
+from django.db.models import Q
 from blog.models import Post, Comment
 from .serializers import (PostSerializer, UserSerializer, PostListSerializer, 
                             PostDetailSerializer, CommentSerializer, CommentDetailSerialzer, 
                             PostCreateSerializer, PostEditSerializer, PostDeleteSerializer,
-                            CommentCreateSerializer)
+                            CommentCreateSerializer )
 from .permissions import IsAutherReadOnly
 
 @api_view(['GET'])
@@ -35,9 +35,30 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer.save(author= self.request.user)    
 
 class CommentListView(generics.ListAPIView):
-    queryset = Comment.objects.all()
+    model = Comment
     serializer_class = CommentSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,IsAutherReadOnly)
+
+    def get_queryset(self):
+        queryset = Comment.objects.filter(parent=None)
+        try:
+           post_id =self.kwargs['post_id']
+           if post_id is not None:
+                queryset = Comment.objects.filter(
+                   Q(parent=None),
+                   Q(post=post_id)
+                   )
+                return queryset
+        except:
+            pass
+        return queryset
+ 
+class CommentRepliesListAPIView(generics.ListAPIView):
+   serializer_class = CommentSerializer
+ 
+   def get_queryset(self):
+       queryset = Comment.objects.filter(parent!=None)
+       return queryset
 
 class CommentDetailView(generics.RetrieveAPIView):
     queryset = Comment.objects.all()
@@ -54,9 +75,16 @@ class CommentCreateView(generics.ListCreateAPIView):
         serializer.save(published_date= datetime.datetime.now())
 
 class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all()
+    model = Post
     serializer_class = PostListSerializer
     Permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        query = self.request.query_params.get('q',None)
+        if query is not None:
+            queryset = Post.objects.search(query)
+        return queryset
 
 class PostDetailView(generics.RetrieveAPIView):
     queryset = Post.objects.all()

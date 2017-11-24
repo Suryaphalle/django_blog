@@ -25,6 +25,10 @@ from .forms import PostForm, CommentForm, ContactForm
 from accounts.forms import SignUpForm
 import json
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions
+
 from .mixins import AjaxFormMixin
 # Create your views here.
 
@@ -222,7 +226,8 @@ class PostDetailView(DetailView):
 
     def get_context_data(self,**kwargs):
         context = super(PostDetailView,self).get_context_data(**kwargs)
-        context['post_detail'] = Post.objects.all()
+        # context['post_detail'] = Post.objects.all()
+        context['modal_title'] = 'Comment Reply'
         return context
 
     def get(self,request,*args,**kwargs):
@@ -411,17 +416,44 @@ def search_post_title(request):
         data_json = 'fail'
     return HttpResponse(data_json,content_type='application/json')
 
-# class PostLikeToggle(RedirectView):
-#     def get_redirect_url(self,*args,**kwrgs):
-#         pk = self.kwargs.get("pk")
-#         print(pk)
-#         obj = get_object_or_404(Post, pk=pk)
-#         url_ = obj.get_absolute_url()
-#         user = self.request.user
-#         if user.is_authenticated():
-#             if user in obj.likes.all():
-#                 obj.likes.remove(user)
-#             else:
-#                 obj.likes.add(user)
-#         return url_
+
+class PostLikeToggle(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        #import pdb
+        #pdb.set_trace()
+        pk = self.kwargs.get("pk")
+        obj = get_object_or_404(Post, pk=pk)
+        url_ = obj.get_absolute_url()
+        user = self.request.user
+        if user.is_authenticated():
+            if user in obj.likes.all():
+                obj.likes.remove(user)
+            else:
+                obj.likes.add(user)
+        return url_
+
+class PostLikeAPIToggle(APIView):
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk=None, format=None):
+        # slug = self.kwargs.get("slug")
+        obj = get_object_or_404(Post, pk=pk)
+        url_ = obj.get_absolute_url()
+        user = self.request.user
+        updated = False
+        liked = False
+        if user.is_authenticated():
+            if user in obj.likes.all():
+                liked = False
+                obj.likes.remove(user)
+            else:
+                liked = True
+                obj.likes.add(user)
+            updated = True
+        Ldata = {
+            "updated": updated,
+            "liked": liked
+        }
+        return Response(Ldata)
 

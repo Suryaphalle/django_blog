@@ -3,8 +3,8 @@
 {% block content %}
 
     <div class="post">
-        <h1>{{ post.title |title }}</h1>
-        Author: {{ post.author|title }}
+        <h2>{{ post.title }}</h2>
+        <h6 class="text-muted" data-post_id="{{ post.id }}" id="post_title_id" data-api_post_comments_list_url="{% url 'post-comment-list' post.id  %}" data-api_post_detail_url="{% url 'post-detail' post.id %}">Author: {{ post.author|title }}.</h6>
         {% if post.published_date %}
             <div class="date">
                 Published On : {{ post.published_date }}
@@ -15,64 +15,19 @@
  
         {% if user.is_authenticated %}
             <div class="container-fluid">
-                <form method="POST" action="." class="post-form" id="comment_form">
+                <form method="POST" action="." class="post-form" id="comment_form" data-comment_post_url="{% url 'post-detail' post.id %}">
                     {% csrf_token %}
                     {% include 'includes/form_snippet.html' %}
                     <button type="submit" class="save btn btn-primary">Comment</button>
                 </form>
             </div>
-            {% for comment in post.comments.all %}
-                    {% if comment.parent == None %}
-                    <div class="card card-outline-info comment">
-                        <div class="card-header date"> 
-                                <strong class="card-title">{{ comment.author|title }}</strong> On {{ comment.created_date }} Replies: {{ comment.has_replies.count }}
-                        </div>
-                        <div class="card-block">
-                            <div class="card-text" >
-                                <p >{{ comment.text }}</p>
-                                <button class="btn btn-primary btn-sm button-reply" type="button">
-                                    reply
-                                </button>
-                                <button class="btn btn-primary btn-sm button-view-replies" type="button">
-                                    Replies{{ comment.has_replies.count }}
-                                </button>
-                                <div >
-                                    <ul class="comment-replies" >
-                                        {% for replies in comment.has_replies %}
-                                            <li>By:{{ replies.author }} :- {{ replies.text }}</li>
-                                        {% empty %}
-                                            <li> No replies</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            <form method="POST" action="." class="form-inline form-replies" >{% csrf_token %} 
-                                {% include 'includes/form_snippet.html' %}
-                                <input type="hidden" name="parent_id" value='{{ comment.id }}'>
-                                <button type="submit" class="save btn btn-success ml-2">Reply</button>
-                            </form>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% empty %}
-                <p>No comments here yet :(</p>
-            {% endfor %}
-
+            <h5>Latest comments</h5>
+            <div class="container" id="post_comments" class="my-new-list"> </div>
         {% else %}
             <strong>To post comments <a href="{% url 'account_login' %}" >Login </a>
             or <a href="{% url 'account_signup' %}" >SignUp</a>. </strong>
-            {% for comment in post.comments.all %}
-                <div class="comment">
-                    <div class="date"> 
-                            <strong>{{ comment.author|title }}</strong> On {{ comment.created_date }}
-                    </div>
-                    <p>{{ comment.text|linebreaks }}</p>
-                    <a href="#" > Reply </a>
-                </div>
-            {% empty %}
-                <p>No comments here yet :(</p>
-            {% endfor %}
             
         {% endif %}
     </div>
+    {% include 'blog/includes/reply_modal.html' %}
 {% endblock %}

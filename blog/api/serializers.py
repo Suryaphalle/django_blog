@@ -17,20 +17,29 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         fields =('url','author','title','text','views','created_date','published_date','updated_date')
 
 class CommentSerializer(serializers.ModelSerializer):
+    replies_count = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ('post', 'author','parent','text','created_date','approved_comment')
+        fields = ('id','url','post','author','username','parent','text','created_date','replies_count')
+
+    def get_replies_count(self,obj):
+        replies_count = obj.has_replies().count()
+        return replies_count
+
+    def get_username(self,obj):
+        return obj.author.username
 
 class CommentDetailSerialzer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ('post', 'author','text','created_date','approved_comment','replies')
+        fields = ('id','post','author','text','created_date','replies')
 
     def get_replies(self,obj):
-        replies = CommentSerializer(obj.has_replies(),many=True).data
+        replies = CommentSerializer(obj.has_replies(),many=True,context=self.context).data
         return replies
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -48,7 +57,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self,obj):
         queryset = Comment.objects.filter(post=obj)
-        comments = CommentSerializer(queryset,many=True).data
+        comments = CommentSerializer(queryset,many=True,context=self.context).data
         return comments
 
     def get_comment_count(self,obj):

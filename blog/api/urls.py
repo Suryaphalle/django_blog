@@ -32,6 +32,7 @@ urlpatterns = format_suffix_patterns([
     url(r'^comment/$', views.CommentListView.as_view() ,name='comment-list'),
     url(r'^comment/create/$',views.CommentCreateView.as_view(),name='comment-create'),
     url(r'^comment/(?P<pk>[0-9]+)/detail/$', views.CommentDetailView.as_view() ,name='comment-detail'),
+    url(r'^comment/(?P<post_id>[0-9]+)/post_comments/$', views.CommentListView.as_view(), name='post-comment-list'),
     url(r'^post/(?P<pk>[0-9]+)/$', views.PostDetailView.as_view(), name='post-detail'),
     
 ])

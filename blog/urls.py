@@ -22,4 +22,7 @@ urlpatterns = [
     url(r'^comment/(?P<pk>\d+)/approve/$', views.comment_approve, name='comment_approve'),
     url(r'^comment/(?P<pk>\d+)/remove/$', views.comment_remove, name='comment_remove'),
     url(r'^post_title/$',views.search_post_title, name = 'post_title'),  
+
+    url(r'^(?P<pk>[\d]+)/like/$', views.PostLikeToggle.as_view(), name='like-toggle'),
+    url(r'^api/(?P<pk>[\d]+)/like/$', views.PostLikeAPIToggle.as_view(), name='like-api-toggle'),
 ]

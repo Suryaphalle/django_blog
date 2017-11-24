@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
-from .managers import PostManager
+from .managers import PostManager, CommentManager
 from django.conf import settings
 import datetime
 
@@ -28,7 +28,7 @@ class Post(models.Model):
         return self.comments.filter(approved_comment=True)
 
     def get_absolute_url(self):
-        return reverse('post_detail',kwargs={'pk':self.pk})
+        return reverse('posts:post_detail',kwargs={'pk':self.pk})
 
     def __str__(self):
         return self.title
@@ -40,10 +40,10 @@ class Post(models.Model):
         return qs
 
     def get_like_url(self):
-        return reverse("posts:like-toggle", kwargs={"pk": self.pk})
+        return reverse('posts:like-toggle', kwargs={"pk": self.pk})
 
     def get_api_like_url(self):
-        return reverse("posts:like-api-toggle", kwargs={"pk": self.pk})
+        return reverse('posts:like-api-toggle', kwargs={"pk": self.pk})
 
 
 
@@ -55,6 +55,7 @@ class Comment(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     approved_comment = models.BooleanField(default=False)
 
+    objects = CommentManager()
 
     class Meta:
         ordering = ['-created_date']

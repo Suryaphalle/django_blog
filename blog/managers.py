@@ -23,3 +23,13 @@ class PostManager(models.Manager):
 
     def search(self,querry):
         return self.get_queryset().search(querry)    
+
+class CommentManager(models.Manager):
+
+    def search(self,query):
+        if query:
+            query = query.strip()
+            return self.filter(
+                Q(text__icontains=query)
+                )
+        return self
