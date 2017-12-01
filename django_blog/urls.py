@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls',namespace='rest')),
     # url(r"^likes/", include("pinax.likes.urls", namespace="pinax_likes")),
     # url(r'^auth/', include('rest_framework_social_oauth2.urls')),
-    
+    url(r"^messages/", include("pinax.messages.urls", namespace="pinax_messages")),
     url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^about/$', views.AboutView.as_view(),name='about_us'),
     # url(r'^posts-api/', include(router.urls)),

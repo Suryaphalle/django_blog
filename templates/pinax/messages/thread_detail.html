@@ -1,14 +1,14 @@
-{% extends "pinax/messages/base.html" %}
+{% extends "base.html" %}
 
 {% block body_class %}{{ block.super }} pinax-messages-thread{% endblock %}
 
-{% load bootstrap %}
 
-{% block body %}
+
+{% block content %}
 <div class="pinax-messages-thread-detail-container">
     <h2>
         {{ thread.subject }}
-        <a href="{% url "pinax_messages:thread_delete" thread.pk %}">Delete Thread</a>
+        <button class="btn btn-danger btn-sm" href="{% url 'pinax_messages:thread_delete' thread.pk %}">Delete Thread</a>
     </h2>
 
     <section class="thread-messages">
@@ -23,12 +23,12 @@
         {% endfor %}
     </section>
 
-    <form class="comment-form" action="{% url "pinax_messages:thread_detail" thread.pk %}" method="post">
+    <form class="comment-form" action="{% url 'pinax_messages:thread_detail' thread.pk %}" method="post">
         {% csrf_token %}
-        {{ form|bootstrap }}
+        {% include 'includes/form_snippet.html' %}
         <div class="form-actions">
-            <a href="{% url "pinax_messages:inbox" %}" class="cancel">Cancel</a>
-            <button>Send</button>
+            <button class="btn btn-success">Send</button>
+            <button class="btn btn-danger"href="{% url 'pinax_messages:inbox' %}" class="cancel">Cancel</button>
         </div>
     </form>
 </div>

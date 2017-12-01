@@ -1,19 +1,17 @@
-{% extends "pinax/messages/base.html" %}
+{% extends "base.html" %}
 
 {% block body_class %}{{ block.super }} pinax-messages-create{% endblock %}
 
-{% load bootstrap %}
-
-{% block body %}
+{% block content %}
 <div class="pinax-messages-create-container">
     <h2>New Message</h2>
 
-    <form class="comment-form" action="{% url "pinax_messages:message_create" %}" method="post">
+    <form class="comment-form" action="{% url 'pinax_messages:message_create' %}" method="post">
         {% csrf_token %}
-        {{ form|bootstrap }}
+        {% include 'includes/form_snippet.html' %}
         <div class="form-actions">
-            <a href="{% url "pinax_messages:inbox" %}" class="cancel">Cancel</a>
-            <button>Send</button>
+            <button class="btn btn-success" >Send</button>
+            <button href="{% url 'pinax_messages:inbox' %}" class="btn btn-danger cancel">Cancel</button>
         </div>
     </form>
 </div>

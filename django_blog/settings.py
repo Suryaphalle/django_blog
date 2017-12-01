@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'blog',
     'widget_tweaks',
     'accounts',
-    'tastypie',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -55,8 +54,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'social_django',
     'rest_framework_social_oauth2',
-    
-    
+    'pinax.messages',
+
 ]
 
 MIDDLEWARE = [
@@ -83,7 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
 		        'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                             
+                'pinax.messages.context_processors.user_messages',
             ],
         },
     },

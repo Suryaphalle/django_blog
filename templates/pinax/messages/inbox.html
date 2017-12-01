@@ -1,4 +1,5 @@
-{% extends "pinax/messages/base.html" %}
+
+{% extends "base.html" %}
 ​
 {% load i18n %}
 {% load pinax_messages_tags %}
@@ -7,15 +8,11 @@
 ​
 {% block body_class %}{{ block.super }} pinax-messages-inbox{% endblock %}
 ​
-{% block body %}
+{% block content %}
 <div class="pinax-messages-inbox-container">
-    <h2>
-        Inbox
-        <a href="{% url "pinax_messages:message_create" %}">
-            <i></i>
-            New Message
-        </a>
-    </h2>
+    <h2>Inbox</h2>
+    <button class="btn btn-sm btn-success" href="{% url 'pinax_messages:message_create'%}">
+    New Message</button>
 
     <section class="mailbox">
         {% for thread in threads %}
