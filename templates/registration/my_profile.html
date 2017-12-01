@@ -2,40 +2,48 @@
 {% load tags %}
 
 
-    {% block content %}
-    {% if messages %}
-        {% for messages in messages %}
-        <div class="alert alert-danger " role="alert">    
-            <strong>{{ messages }}</strong>  {{ post.title }}
-        </div>
-        {% endfor %}
-    {% endif %}
-    <div class="container-fluied">
-    <div class="row">
-    <div class  ="col-md-8">
-    <h1> All Post By You </h1> 
+{% block content %}
+   {% if messages %}
+       {% for messages in messages %}
+       <div class="alert alert-danger " role="alert">    
+           <strong>{{ messages }}</strong>  {{ post.title }}
+       </div>
+       {% endfor %}
+   {% endif %}
+   <div class="container-fluied">
+   <div class="row">
+   <div class  ="col-md-8">
+  
     <!-- <h6>Posts{{ user.post_set.count }} </h6> -->
-
-    {% for post in user.post_set.all %}
-        <div class="card card-outline-primary"  >
-          <div class="card-header " >
-                <h5 class="card-title"><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title|title }}</a></h5> 
-                <p><b>Pub On :</b> {{post.published_date|date }} <b>By :</b> {{ post.author|title }} <b>Comments :</b> {{ post.comments.count }} <b>Views :</b> {{ post.views }} </p> 
+    {% if user.is_superuser %}
+    <h1>Editors Options</h1>
+    <ul>
+      <li><a href="{% url 'api-users:user-list' %}">User List</a></li>
+      <li><a href="{% url 'posts:post_list' %}">Post List</a></li>
+    </ul>
+    {% else %}
+      <h1> All Post By You </h1> 
+      {% for post in user.post_set.all %}
+      
+          <div class="card card-outline-primary"  >
+            <div class="card-header " >
+                  <h5 class="card-title"><a href="{% url 'posts:post_detail' pk=post.pk %}">{{ post.title|title }}</a></h5> 
+                  <p><b>Pub On :</b> {{post.published_date|date }} <b>By :</b> {{ post.author|title }} <b>Comments :</b> {{ post.comments.count }} <b>Views :</b> {{ post.views }} </p> 
+            </div>
+            <div class="card-block" >
+                <p class="card-text" >{{ post.text|truncatewords:10}}<a href="{% url 'posts:post_detail' pk=post.pk %}" >Read more</a></p>
+              {% if user.is_authenticated and post.author == request.user %}
+                  <a class="card-link " href="{% url 'posts:post_edit' pk=post.pk %}">Edit
+                  <a href="{% url 'posts:del_blog' pk=post.pk %}" class="card-link">Delete</a>
+              {% endif %}
+                <a href="" class="card-link"><span class="glyphicon glyphicon-thumbs-up"></span></a></a>
+            </div>
           </div>
-          <div class="card-block" >
-              <p class="card-text" >{{ post.text|truncatewords:10}}<a href="{% url 'post_detail' pk=post.pk %}" >Read more</a></p>
-            {% if user.is_authenticated and post.author == request.user %}
-                <a class="card-link " href="{% url 'post_edit' pk=post.pk %}">Edit
-                <a href="{% url 'del_blog' pk=post.pk %}" class="card-link">Delete</a>
-            {% endif %}
-              <a href="" class="card-link"><span class="glyphicon glyphicon-thumbs-up"></span></a></a>
-          </div>
-        </div>
-        
-    {% empty %}
-      <strong>No posts found!</strong>
-    {% endfor %}
-
+          
+      {% empty %}
+        <strong>No posts found!</strong>
+      {% endfor %}
+    {% endif %}
     {% include 'includes/pagination.html' %}
     </div>
     </div>

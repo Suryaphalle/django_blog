@@ -28,8 +28,10 @@
         <a class="nav-link" href="{% url 'posts:post_list' %}">Home <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
+        {% if user|has_group:"Writer" %}
         <a class="nav-link" href="{% url 'posts:post_new' %}">New Blog</a>
-      </li>
+        {% endif %}
+       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
       </li>
@@ -54,6 +56,9 @@
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
             <a class="dropdown-item" href="{% url 'my_profile' %}">MyAccount</a>
+            {% if user|has_group:"Reader" %}
+            <a class="dropdown-item" href="{% url 'posts:writer_request'%}">Request to be Writer.</a>
+            {% endif %}
             <a class="dropdown-item" href="{% url 'posts:change_password' %}">Change Password</a>
             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
             <!-- <a class="dropdown-item" href="#">Another action</a>
@@ -74,7 +79,6 @@
     
   </div>
 </nav>
-  <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
 </div>
     <div class="container">
     {% block content %}
@@ -86,6 +90,7 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/eldarion-ajax@0.16.0/js/eldarion-ajax.min.js"></script>
     <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
     <!-- <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script> -->
     <script src="{% static 'js/jquery.waypoints.js' %}"></script>

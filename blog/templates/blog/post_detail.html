@@ -15,9 +15,11 @@
  
         {% if user.is_authenticated %}
             <div class="container-fluid">
-                <form method="POST" action="." class="post-form" id="comment_form" data-comment_post_url="{% url 'post-detail' post.id %}">
+                <form method="POST" action="." class="post-form" id="comment_form" data-comment_post_url="{% url 'post-detail' post.id %}" 
+                data-api_post_create_url="{% url 'comment-create' %}">
                     {% csrf_token %}
                     {% include 'includes/form_snippet.html' %}
+                    <input type="hidden" name="post" value="{{ post.id }}">
                     <button type="submit" class="save btn btn-primary">Comment</button>
                 </form>
             </div>

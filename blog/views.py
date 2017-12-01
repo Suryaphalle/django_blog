@@ -7,7 +7,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
@@ -21,7 +21,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse, HttpResponse
 from .models import Post, Comment
-from .forms import PostForm, CommentForm, ContactForm
+from .forms import PostForm, CommentForm, ContactForm, RequestForm
 from accounts.forms import SignUpForm
 import json
 
@@ -187,9 +187,10 @@ class HomeView(ListView):
     template_name = 'home.html'
     context_object_name = 'posts'
     paginate_by = 5
-
+    queryset = Post.objects.approved()
+    
     def get_context_data(self,**kwargs):
-        queryset = Post.objects.all()
+        
         context = super(HomeView,self).get_context_data(**kwargs)
         return context
 
@@ -198,10 +199,10 @@ class PostListView(ListView):
     context_object_name = 'posts'
     template_name = 'blog/post_list.html'
     paginate_by = 3
-    queryset = Post.objects.all()
+    queryset = Post.objects.approved()
 
     def get_context_data(self,**kwargs):
-        queryset = Post.objects.all()
+        queryset = Post.objects.approved()
         context = super(PostListView,self).get_context_data(**kwargs)
         context['most_views_posts'] = queryset.order_by('-views')[:5]
         context['updated_posts'] = queryset.order_by('-updated_date')[:5]
@@ -305,15 +306,17 @@ class ContactView(FormView,AjaxFormMixin):
 
 
 
-class PostCreateView(LoginRequiredMixin,CreateView):
+class PostCreateView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     model = Post
     template_name = 'blog/post_edit.html'
     form_class = PostForm
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('posts:post_list')
+    permission_required = ('blog.add_post',)
 
     def form_valid(self,form):
         form.instance.author = self.request.user
         form.instance.published_date = timezone.now()
+    
         return super(PostCreateView, self).form_valid(form)
     # def form_valid(self,form):
     #     form.instance.author = self.request.user
@@ -368,7 +371,7 @@ class PostUpdateView(UpdateView,AjaxFormMixin):
 class PostDeleteView(LoginRequiredMixin,DeleteView):
     model = Post
     template_name = 'blog/conferm_del.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('posts:post_list')
 
 
 class SignUpView(FormView):
@@ -457,3 +460,17 @@ class PostLikeAPIToggle(APIView):
         }
         return Response(Ldata)
 
+class WriterRequestForm(FormView):
+    form_class = RequestForm
+    template_name = 'blog/writer_request.html'
+    success_url = reverse_lazy('home')
+
+    def form_valid(self,form):
+        response = super(WriterRequestForm,self).form_valid(form)
+        name = form.cleaned_data[self.request.user]
+        subject = form.cleaned_data['Want to be writer']
+        email = form.cleaned_data['email']
+        message = form.cleaned_data['message']
+        send_email(subject,message,email,['admin@example.com'])
+        return super(WriterRequestForm, self).form_valid(form)
+        

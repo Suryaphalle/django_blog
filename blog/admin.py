@@ -7,7 +7,7 @@ from blog.models import Post, Comment
 # Register your models here.
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('title','author','views','created_date','updated_date')
+    list_display = ('title','author','views','approved','created_date','updated_date')
     list_display_links = ('title', 'author')
     list_filter = ('author', 'updated_date')
 

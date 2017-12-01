@@ -9,12 +9,67 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('url','id','username','post_set')
 
+
 class PostSerializer(serializers.HyperlinkedModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Post
         fields =('url','author','title','text','views','created_date','published_date','updated_date')
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    comments = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields=('url','title','author','text','views','comment_count','created_date','published_date','comments')
+
+    def get_comments(self,obj):
+        queryset = Comment.objects.filter(post=obj)
+        comments = CommentSerializer(queryset,many=True,context=self.context).data
+        return comments
+
+    def get_comment_count(self,obj):
+        count = obj.comments.count()
+        return count
+
+class PostListSerializer(serializers.ModelSerializer):
+    comment_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Post
+        fields=('url','title','author','text','views','approved','comment_count','created_date','published_date')
+
+    def get_comment_count(self,obj):
+        count = obj.get_comment.count()
+        return count
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Post
+        fields = ('title','text')
+
+
+class PostEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = ('title','text','approved')
+
+class PostStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ('approved',)
+
+class PostDeleteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = ('title','text')
+
 
 class CommentSerializer(serializers.ModelSerializer):
     replies_count = serializers.SerializerMethodField()
@@ -45,52 +100,5 @@ class CommentDetailSerialzer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields= ('post','author','text')
-
-class PostDetailSerializer(serializers.ModelSerializer):
-    comments = serializers.SerializerMethodField()
-    comment_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Post
-        fields=('url','title','author','text','views','comment_count','created_date','published_date','comments')
-
-    def get_comments(self,obj):
-        queryset = Comment.objects.filter(post=obj)
-        comments = CommentSerializer(queryset,many=True,context=self.context).data
-        return comments
-
-    def get_comment_count(self,obj):
-        count = obj.comments.count()
-        return count
-
-class PostListSerializer(serializers.ModelSerializer):
-    comment_count = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Post
-        fields=('url','title','author','text','views','comment_count','created_date','published_date')
-
-    def get_comment_count(self,obj):
-        count = obj.get_comment.count()
-        return count
-
-class PostCreateSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Post
-        fields = ('title','text')
-
-
-class PostEditSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Post
-        fields = ('title','text')
-
-
-class PostDeleteSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Post
-        fields = ('title','text')
+        fields= ('post','author','text','parent')
+        read_only_fields = ('author',)

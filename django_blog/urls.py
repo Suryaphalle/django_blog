@@ -24,8 +24,12 @@ urlpatterns = [
     # url(r'^api/',include(rest_api.urls)),
     url(r'^api/$', blog_views.api_root),
     url(r'^api/post/',include('blog.api.urls')),
-    url(r'^api/users/',include('accounts.api.urls')),
+    url(r'^api/users/',include('accounts.api.urls',namespace='api-users')),
     url(r'^accounts/',include('allauth.urls')),
+    url(r'^rest-auth/', include('rest_auth.urls',namespace='rest')),
+    # url(r"^likes/", include("pinax.likes.urls", namespace="pinax_likes")),
+    # url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    
     url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^about/$', views.AboutView.as_view(),name='about_us'),
     # url(r'^posts-api/', include(router.urls)),
@@ -59,4 +63,5 @@ urlpatterns = [
 urlpatterns += [
     
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    
 ]

@@ -11,7 +11,9 @@ class PostQueryset(models.QuerySet):
                 Q(title__icontains=querry)|
                 Q(text__icontains=querry))
         return self
-            
+
+    def approved(self):
+        return self.filter(approved=True)            
 
 class PostManager(models.Manager):
 
@@ -22,7 +24,11 @@ class PostManager(models.Manager):
         return self.get_queryset().authors()
 
     def search(self,querry):
-        return self.get_queryset().search(querry)    
+        return self.get_queryset().search(querry)
+
+    def approved(self):
+        return self.get_queryset().approved()
+
 
 class CommentManager(models.Manager):
 

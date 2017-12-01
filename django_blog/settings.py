@@ -25,7 +25,7 @@ SECRET_KEY = '3pz#9(l*dx+fpcip^bh7pjjw=!1f0)5k6^y2+$1iyk_22nz*cm'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['testserver','localhost','127.00.00.1']
+ALLOWED_HOSTS = ['*']
 
 SITE_ID = 3
 # Application definition
@@ -51,6 +51,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'bootstrap3',
     'rest_framework',
+    'rest_auth',
+    'rest_framework.authtoken',
+    'social_django',
+    'rest_framework_social_oauth2',
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -75,9 +81,9 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
+		        'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                
+                             
             ],
         },
     },
@@ -91,6 +97,7 @@ AUTHENTICATION_BACKENDS = (
 
     # 'allauth' specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
+   
 )
 
 
@@ -161,6 +168,15 @@ LOGOUT_REDIRECT_URL ='login'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S.%fZ",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+       
+    )
+    
 }

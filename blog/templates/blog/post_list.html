@@ -13,7 +13,7 @@
     <div class="container-fluied ">
     <div class="row">
     <div class  ="col-md-8 ">
-    <h1> Blog Posts</h1>  
+    <h1> Blog Posts </h1>  
     <div class="infinite-container">
     {% for post in posts %}
       <div class="infinite-item">
@@ -29,6 +29,7 @@
               <a class="card-link btn" href="{% url 'posts:post_edit' pk=post.pk %}"> Edit
               <a class="card-link btn" href="{% url 'posts:del_blog' pk=post.pk %}"> Delete</a>
             {% endif %}
+
               <a class="card-link btn like-btn" data-href="{% url 'posts:like-toggle' post.pk %}" data-likes='{{ post.likes.count }}' href='{{ post.get_like_url }}'>Like</a>
           </div>
         </div>

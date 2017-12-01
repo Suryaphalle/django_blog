@@ -6,13 +6,14 @@ from django.conf import settings
 import datetime
 
 class Post(models.Model):
-    author = models.ForeignKey('auth.user')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(max_length = 200)
     text = models.TextField()
     views = models.PositiveIntegerField(default=0)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='post_likes')
     created_date = models.DateTimeField(default =timezone.now)
     published_date = models.DateTimeField(blank=True, null=True)
+    approved = models.BooleanField(default= False)
     updated_date = models.DateTimeField( default =timezone.now)
 
     objects = PostManager()

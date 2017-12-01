@@ -14,16 +14,17 @@ from blog.models import Post, Comment
 from .serializers import (PostSerializer, UserSerializer, PostListSerializer, 
                             PostDetailSerializer, CommentSerializer, CommentDetailSerialzer, 
                             PostCreateSerializer, PostEditSerializer, PostDeleteSerializer,
-                            CommentCreateSerializer )
+                            CommentCreateSerializer,PostStatusUpdateSerializer )
 from .permissions import IsAutherReadOnly
 
 @api_view(['GET'])
 def api_root(request,format=None):
     return Response({
-        'user': reverse('user-list', request= request, format=format),
+        'user': reverse('api-users:user-list', request= request, format=format),
         'post': reverse('post-list', request=request, format=format),
         'comment': reverse('comment-list', request=request, format=format)
     })
+
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -65,7 +66,7 @@ class CommentDetailView(generics.RetrieveAPIView):
     serializer_class = CommentDetailSerialzer
     permissions_class = (permissions.IsAuthenticatedOrReadOnly,IsAutherReadOnly)
 
-class CommentCreateView(generics.ListCreateAPIView):
+class CommentCreateView(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentCreateSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,IsAutherReadOnly)
@@ -91,7 +92,7 @@ class PostDetailView(generics.RetrieveAPIView):
     serializer_class = PostDetailSerializer
     Permission_classes = (permissions.AllowAny,)
 
-class PostCreateView(generics.ListCreateAPIView):
+class PostCreateView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostCreateSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -113,3 +114,11 @@ class PostDeleteView(generics.RetrieveDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostDeleteSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+
+class PostStatusUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostStatusUpdateSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    

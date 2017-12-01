@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block stylesheet %}
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ user_detail.username }}</h1>
+Total Posts : {{ user_detail.post_set.count }}
+<table class="table">
+     <thead>
+       <tr>
+         <th>#</th>
+         <th>Post title</th>
+         <th>Published</th>
+         <th>Approved</th>
+         <th>Status</th>
+       </tr>
+     </thead>
+ 
+     <tbody>
+       {% for post in user_detail.post_set.all %}
+           <tr>
+             <th scope="row">{{forloop.counter }}</th>
+             <td><a href="{% url 'posts:post_detail' post.id %}">{{ post.title }}</a></td>
+             <td>{{ post.published_date }}</td>
+             <td>{{ post.approved }} </td>
+             <td>
+                <form action="." method="PUT" class="form-post-status_update" data-post_update_url="{% url 'post-status-update' post.id %}">{% csrf_token %}
+                <input type="checkbox" name="approved" class="posts-status"  data-post_id="{{ post.id }}"{%if post.approved == True%}checked value="True" {% else %}unchecked value="False" {% endif %}>
+                </form>
+             </td>
+           </tr>
+       {% empty %}
+           <td> Not posts yet!</td>
+       {% endfor %}
+     </tbody>
+</table>
+
+{% endblock %}
+{% block script %}
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+{% endblock %}

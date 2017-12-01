@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<html><body>
+<h2>User List</h2>
+   
+   <table class="table">
+     <thead>
+       <tr>
+         <th>#</th>
+         <th>User</th>
+         <th>Post Count</th>
+         <th>Comments Count</th>
+       </tr>
+     </thead>
+ 
+     <tbody>
+       {% for user in users %}
+           <tr>
+             <th scope="row">{{forloop.counter }}</th>
+             <td><a href="{% url 'api-users:user-detail' user.id %}">{{ user.username }}</a></td>
+             <td>{{ user.post_set.count}}</td>
+             <td>{{ user.comment_set.count }}</td>
+           </tr>
+       {% empty %}
+           <td> Not posts yet!</td>
+       {% endfor %}
+     </tbody>
+   </table>
+{% endblock %}
